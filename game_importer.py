@@ -46,7 +46,7 @@ game_to_be_added+='        {\n'
 game_to_be_added+='            "name": "'+game_name[:game_name.index('.')]+'",\n'
 game_to_be_added+='            "path": "Games/GameFiles/'+game_name+'",\n'
 game_to_be_added+='	        "thumbnailpath":"Games/GameThumbnails/'+new_thumbnail+'",\n'
-game_to_be_added+='          category: "{category}",\n'
+game_to_be_added+='            "category":"'+category+'",\n'
 game_to_be_added+='        },\n'
 game_to_be_added+=']'
 
