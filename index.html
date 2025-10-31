@@ -2,90 +2,180 @@
 <html lang="en">
 <style>
     * {
-        -ms-overflow-style: none;
-        /* IE and Edge */
-        scrollbar-width: none;
-        /* Firefox */
-
-        outline: none;
-    }
-
-    html {
-        height: 100%;
-        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    }
-
-    body {
+        box-sizing: border-box;
         margin: 0;
-        background-color: #333333;
-        /* background-image: url('logostacked-black.png'); */
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: initial;
-        background-attachment: fixed;
-        height: 100%;
+        padding: 0;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
+    ::-webkit-scrollbar { display: none; }
+
+    html, body {
+        height: 100%;
+        width: 100%;
+        background-color: #333333;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
+            'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        overflow: hidden;
+    }
+
+    .logo_div {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; 
+        height: 24vh; 
+        padding-top: 2.8vh;
+        margin-bottom: 1vh;
+    }
+
+    .logo_div img {
+        max-height: 140%; 
+        width: auto;
+        height: auto;
+        transform: scale(1.5);
+        transform-origin: top center; 
+    }
+
+
+    #pageLabel {
+        text-align: center;
+        font-size: 2vw;
+        color: #00ff00;
+        text-shadow: 0 0 10px #00ff00;
+        font-weight: bold;
+        margin-top: 2.5vh;
+        margin-bottom: 4vh;
+    }
+
+
 
     .flexcontainer {
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-evenly;
-        /* align-items: center;
-        height: 80%;*/
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+        height: 68%; 
+        gap: 4vw;
+        padding: 2vh 2vw;
+        margin-top: 2.5vh;
+    }
+
+
+    .thumbnail_div {
+        flex: 1 1 45%;
+        max-width: 45%;
+        height: 80%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .thumbnail {
+        width: 100%;
+        height: auto;
+        max-height: 85%;
+        border-radius: 10px;
+        object-fit: contain;
+        transition: opacity 0.4s ease;
+    }
+
+    .scrolling_list {
+        flex: 1 1 35%;
+        max-width: 35%;
+        height: 80%;
+        background-color: #6a6a6a;
+        border-radius: 10px;
+        overflow-y: auto;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 1vh 0;
     }
 
     ul {
         list-style-type: none;
-        margin: auto;
+        width: 90%;
+        margin: 0;
         padding: 0;
-        /*width: 250px;*/
-        border-radius: 10px;
-        background-color: #6a6a6a;
-        font-size: 20px;
     }
 
     li a {
         display: block;
-        padding: 10px;
+        text-align: center;
         text-decoration: none;
         color: #ffffff;
-        text-align: center;
+        padding: 1vh;
+        font-size: 1.6vw;
         border-radius: 10px;
-
+        transition: 0.2s;
     }
 
-    li a.selected {
-        color: white;
-        background-color: #272626;
-        border-radius: 10px;
-        text-shadow: 3px 3px 5px #00FF00;
-    } 
-
-    .scrolling_list {
-
-        max-height: 360px;
-        overflow-y: auto;
-        width: 480px;
-        border-radius: 10px;
-
+    li a:hover {
+        background-color: #4a4a4a;
     }
 
-    .logo_div {
-        height: 30%;
+   #fileLinks {
+        position: relative;
         width: 100%;
-        border-radius: 10px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        perspective: 1000px;
+        transform-style: preserve-3d;
+        overflow: hidden;
     }
 
-    .logo_div img {
-        display: block;
-        margin: auto;
-        padding-top: 2%;
-        width: auto;
-        height: 75%;
+    #fileLinks li {
+        position: absolute;
+        width: 80%;
+        text-align: center;
+        font-size: 1.3vw;
+        color: #ccc;
+        transition: transform 0.5s ease, opacity 0.4s ease;
+        transform-origin: center center -200px;
+        pointer-events: none;
     }
-    .thumbnail{
-        border-radius: 10px;
+
+    #fileLinks li a {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        padding: 0.25em 0;
+    }
+
+    #fileLinks li.selected a {
+        color: #00ff00;
+        font-weight: bold;
+        text-shadow: 0 0 10px #00ff00;
+    }
+
+    #fileLinks, .flexcontainer {
+        will-change: transform, opacity;
+    }
+
+    .fade-out {
+        opacity: 0;
+    }
+    .fade-in {
+        opacity: 1;
+    }
+
+    @media (max-width: 800px) {
+        .flexcontainer {
+            flex-wrap: nowrap;
+            gap: 2vw;
+            margin-top: 0;
+        }
+        .thumbnail_div, .scrolling_list {
+            flex: 1 1 50%;
+            max-width: 50%;
+        }
+        li a {
+            font-size: 3vw;
+        }
     }
 </style>
 
@@ -96,33 +186,22 @@
 <script src="games.js"></script>
 
 <body>
-    <!-- <div id="flex-container"> -->
     <div class="logo_div">
         <img src="logostacked-white-shadow.png">
     </div>
-    <div class="flexcontainer">
 
+    <!-- Page label closer to thumbnail/list -->
+    <div id="pageLabel">Scratch</div>
+
+    <div class="flexcontainer">
         <div class="thumbnail_div">
             <img id="gameimage" class="thumbnail" width="480" height="360">
         </div>
-
-
         <div class="scrolling_list">
-            <ul id="fileLinks">
-
-            </ul>
+            <ul id="fileLinks"></ul>
         </div>
-
-
-
     </div>
 
-    <!-- Assuming the JavaScript file is named script.js -->
     <script src="script.js"></script>
-
-    <!-- </div> -->
-
-
 </body>
-
 </html>

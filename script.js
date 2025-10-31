@@ -1,119 +1,222 @@
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    [array[i], array[j]] = [array[j], array[i]];
   }
 }
 
+const subpages = ["Scratch", "PixelPad", "Godot"];
+let currentPage = 0;
+
 
 function generateLinks() {
-    // Get the container element where links will be added
-    const container = document.getElementById("fileLinks");
-    const link_list = [];
-    // Iterate through each file name in the JSON data
-    fileNames.files.forEach(fileName => {
-        // Create an anchor element for each file
-        const list = document.createElement("li");
-        const link = document.createElement('a');
+  const container = document.getElementById("fileLinks");
+  container.innerHTML = "";
 
-        // Set the href attribute to the file name
-        link.setAttribute("href", fileName.path);
-        link.setAttribute("target", "_blank");
-        link.setAttribute("thumbnail",fileName.thumbnailpath);
-        link.textContent=fileName.name;
-        // link.classList.add("test");
+  const filtered = fileNames.files.filter(
+    (file) => file.category && file.category.toLowerCase() === subpages[currentPage].toLowerCase()
+  );
 
-        // Create and set the thumbnail image
-        // const thumbnail = document.createElement("img");
-        // thumbnail.setAttribute("src", fileName.thumbnailpath);
-        // link.appendChild(thumbnail);
+  for (const fileName of filtered) {
+    const list = document.createElement("li");
+    const link = document.createElement("a");
+    link.href = fileName.path;
+    link.setAttribute("thumbnail", fileName.thumbnailpath);
+    link.textContent = fileName.name;
+    list.appendChild(link);
+    container.appendChild(list);
+  }
 
-        // Create and set the game name span
-        // const gameName = document.createElement("span");
-        // gameName.innerText = fileName.name;
-        // link.appendChild(gameName);
-
-        // Append the link to the container
-        list.appendChild(link);
-        link_list.push(list);
-        container.appendChild(list);
-        
-    });
-    /*
-    shuffle(link_list);
-    link_list.forEach(li_element => {
-        container.appendChild(li_element);
-    })
-    */
-    // Set up navigation event listeners after links are created
-    setupNavigation();
+  requestAnimationFrame(() => setupNavigation());
 }
+
 
 function setupNavigation() {
-    const li_elements=document.querySelectorAll('li')
-    const elements = document.querySelectorAll('a');
-    console.log(elements);
-    const gameimage = document.getElementById("gameimage");
-    let currentIndex = 0;
-    document.querySelector(".scrolling_list a").focus()
-    if (elements.length > 0) {
-        // Initial selection
-        elements[currentIndex].classList.add('selected');
-        li_elements[currentIndex].classList.add('selected')
-        gameimage.src=elements[currentIndex].getAttribute("thumbnail");
-        function navigate(event) {
-            // Remove current selection
-            elements[currentIndex].classList.remove('selected');
-            li_elements[currentIndex].classList.remove('selected')
-            /* if (event.key === 'ArrowRight' || event.key==='d') {
-                currentIndex = (currentIndex + 1) % elements.length;
-            } else if ( event.key === 'ArrowLeft' || event.key==='a') {
-                currentIndex = (currentIndex - 1 + elements.length) % elements.length;
-            }else  */
-            if (event.key==='ArrowDown' || event.key==='s'){
-                if (currentIndex<elements.length-1){
-                    currentIndex=(currentIndex+1);
-                    elements[currentIndex].focus();
-                    elements[currentIndex].scrollIntoView({behavior:'smooth',block:'center'});
-                }
-            }else if (event.key === 'ArrowUp' || event.key==='w'){
-                if (currentIndex>0){
-                    currentIndex=(currentIndex-1);
-                    elements[currentIndex].focus();
-                    elements[currentIndex].scrollIntoView({behavior:'smooth',block:'center'});
-                }
-            }
-            
-            else if (event.key === 'Enter') {
-                // Trigger a click on the currently selected link
-                elements[currentIndex].click();
-                //return; // Exit the function to avoid adding 'selected' class again
-            }
+  const li_elements = document.querySelectorAll("#fileLinks li");
+  const elements = document.querySelectorAll("#fileLinks a");
+  const gameimage = document.getElementById("gameimage");
 
-            // Add new selection
-            elements[currentIndex].classList.add('selected');
-            li_elements[currentIndex].classList.add('selected')
-            gameimage.src=elements[currentIndex].getAttribute("thumbnail");
+  if (li_elements.length === 0) return;
 
-            /* 
-            if (elements[currentIndex].getBoundingClientRect().bottom > window.innerHeight ||elements[currentIndex].getBoundingClientRect().top < 0 && currentIndex > 4) {
-                elements[currentIndex].scrollIntoView({behavior: "smooth"})
-            } 
-            if (currentIndex < 5) {
-                window.scrollTo({top: 0, behavior: 'smooth'})
-            }
-             */
+  let currentIndex = 0;
+  const total = li_elements.length;
+
+  const depth = 250 + Math.min(total * 5, 200);
+  const verticalSpread = 140 + Math.min(total * 3, 150);
+  const angleStep = 360 / total;
+  const spinSpeed = 0.18;
+  let currentAngle = 0;
+  let targetAngle = 0;
+  let isSpinning = false;
+
+  li_elements.forEach(li => {
+    const link = li.querySelector("a");
+    link.style.display = "block";
+    link.style.textAlign = "center";
+    link.style.whiteSpace = "normal";        
+    link.style.wordBreak = "break-word";    
+    link.style.lineHeight = "1.1em";
+    link.style.maxWidth = "70%";
+    link.style.margin = "0 auto";
+    link.style.fontSize = "0.9vw";      
+  });
+
+  function updateWheel() {
+    li_elements.forEach((li, i) => {
+      const angle = (i * angleStep + currentAngle) % 360;
+      const rad = (angle * Math.PI) / 180;
+
+      const y = Math.sin(rad) * verticalSpread;
+      const z = Math.cos(rad) * depth;
+
+      const opacity = Math.max(0, Math.cos(rad));
+      li.style.transform = `translateY(${y}px) translateZ(${z}px)`;
+      li.style.opacity = opacity;
+
+      li.classList.remove("selected");
+      li.style.transform += " scale(1)";
+      const frontAngle = ((angle + 360) % 360);
+      if (frontAngle < angleStep / 2 || frontAngle > 360 - angleStep / 2) {
+        li.classList.add("selected");
+        li.style.transform += " scale(1.05)";
+        li.style.zIndex = "2";
+      } else {
+        li.style.zIndex = "1";
+      }
+    });
+  }
+
+  currentAngle = 0;
+  targetAngle = 0;
+  li_elements[0].classList.add("selected");
+  elements[0].classList.add("selected");
+  gameimage.src = elements[0].getAttribute("thumbnail");
+  updateWheel();
+
+  function spin(direction) {
+    if (isSpinning) return;
+    isSpinning = true;
+
+    currentIndex = (currentIndex + direction + total) % total;
+    targetAngle -= direction * angleStep;
+
+    const startAngle = currentAngle;
+    let progress = 0;
+
+    function animate() {
+      progress += spinSpeed;
+      if (progress >= 1) progress = 1;
+
+      const ease = 0.5 - Math.cos(progress * Math.PI) / 2;
+      currentAngle = startAngle + (targetAngle - startAngle) * ease;
+      updateWheel();
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        currentAngle = targetAngle;
+        updateWheel();
+        isSpinning = false;
+
+        const selected = document.querySelector("#fileLinks li.selected a");
+        if (selected) {
+          gameimage.classList.add("fade-out");
+          setTimeout(() => {
+            gameimage.src = selected.getAttribute("thumbnail");
+            gameimage.classList.remove("fade-out");
+            gameimage.classList.add("fade-in");
+            setTimeout(() => gameimage.classList.remove("fade-in"), 400);
+          }, 150);
         }
-
-        // Add event listener for keydown event
-        window.addEventListener('keydown', navigate);
+      }
     }
+
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "s") spin(1);
+    else if (e.key === "ArrowUp" || e.key === "w") spin(-1);
+    else if (e.key === "Enter") {
+      const selected = document.querySelector("#fileLinks li.selected a");
+      if (selected) selected.click();
+    }
+  });
 }
 
-window.onload = generateLinks;
+
+window.onload = () => {
+  const logoDiv = document.querySelector(".logo_div");
+  if (logoDiv && !document.getElementById("pageLabel")) {
+    const label = document.createElement("div");
+    label.id = "pageLabel";
+    label.textContent = subpages[currentPage];
+    label.style.marginTop = "1vh";
+    label.style.textAlign = "center";
+    label.style.fontSize = "2vw";
+    label.style.color = "#00ff00";
+    label.style.textShadow = "0 0 10px #00ff00";
+    label.style.fontWeight = "bold";
+    logoDiv.insertAdjacentElement("afterend", label);
+  }
+
+  document.querySelector(".flexcontainer").style.opacity = "0";
+  generateLinks();
+
+  setTimeout(() => {
+    document.querySelector(".flexcontainer").style.transition = "opacity 0.5s ease";
+    document.querySelector(".flexcontainer").style.opacity = "1";
+  }, 200);
+};
 
 window.addEventListener("keydown", function(e) {
-    if(["Space","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
-        e.preventDefault();
-    }
+  if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) {
+    e.preventDefault();
+  }
 }, false);
+
+function swapPage(direction) {
+  const flex = document.querySelector(".flexcontainer");
+  flex.style.transition = "opacity 0.4s ease";
+  flex.style.opacity = "0";
+
+  setTimeout(() => {
+    currentPage = (currentPage + direction + subpages.length) % subpages.length;
+
+    const label = document.getElementById("pageLabel");
+    if (label) label.textContent = subpages[currentPage];
+
+    const container = document.getElementById("fileLinks");
+    container.innerHTML = "";
+
+    const filteredGames = fileNames.files.filter(
+      (f) => f.category === subpages[currentPage]
+    );
+
+    filteredGames.forEach((fileName) => {
+      const list = document.createElement("li");
+      const link = document.createElement("a");
+      link.setAttribute("href", fileName.path);
+      link.setAttribute("thumbnail", fileName.thumbnailpath);
+      link.textContent = fileName.name;
+      list.appendChild(link);
+      container.appendChild(list);
+    });
+
+    container.offsetHeight;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setupNavigation();   
+        flex.style.opacity = "1";
+      });
+    });
+  }, 350);
+}
+
+
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "a" || e.key === "ArrowLeft") swapPage(-1);
+  else if (e.key === "d" || e.key === "ArrowRight") swapPage(1);
+});

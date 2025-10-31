@@ -36,6 +36,7 @@ new_thumbnail=game_name[:game_name.index('.')] + old_game_thumbnail[old_game_thu
 os.rename(games_dir + old_game_thumbnail , games_dir + new_thumbnail)
 shutil.move(games_dir+new_thumbnail,"./Games/GameThumbnails/")
 shutil.move(games_dir+game_name,"./Games/GameFiles/")
+category = "Scratch"
 
 with open("games.js",'r') as f:
     gamelist=f.read()
@@ -45,6 +46,7 @@ game_to_be_added+='        {\n'
 game_to_be_added+='            "name": "'+game_name[:game_name.index('.')]+'",\n'
 game_to_be_added+='            "path": "Games/GameFiles/'+game_name+'",\n'
 game_to_be_added+='	        "thumbnailpath":"Games/GameThumbnails/'+new_thumbnail+'",\n'
+game_to_be_added+='          category: "{category}",\n'
 game_to_be_added+='        },\n'
 game_to_be_added+=']'
 
